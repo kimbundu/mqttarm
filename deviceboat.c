@@ -85,21 +85,7 @@ yajl_gen_status end_array(void *ctx)
     return __stat;  
 } 
 
-static int compare_e ( void* left, void* right ) 
-{
-    return strcmp ( (const char *)left, (const char *) right );
-}
-void replace_subvalues(equpment_t* eq, char* key, char* value) 
-{
-	remove_c_map ( eq->subdev, key);
-	char *keystr = clib_strdup(key);
-	int key_length = (int)strlen ( keystr ) + 1;
-	char* valuestr = clib_strdup( value);
-	int value_length = (int)strlen ( valuestr ) + 1;
-	insert_c_map ( eq->subdev , keystr, key_length, &valuestr, value_length);
-	free ( keystr );
-	free ( valuestr );	
-}
+
 
 char * subdevtostring( equpment_t* eq, char* eqno, int opcode )
 {
@@ -247,13 +233,13 @@ char * getRegInfo( equpment_t* eq,char* filename )
 
 	eq->status=1;
 	eq->nsubsize=0;
-
-	eq->subdev = new_c_map ( compare_e, NULL, NULL);
+	eq->mysubDev = NULL;
 
 	file_len  = lseek(from_fd,0L,SEEK_END);
     lseek(from_fd,0L,SEEK_SET);
 	buf = (char*) malloc( file_len  );	
 	ret= read(from_fd, buf, file_len);
+	
 	if( ret == file_len )
 	{	
 		node = yajl_tree_parse((const char *) buf, NULL, 0);
@@ -312,14 +298,15 @@ char * getRegInfo( equpment_t* eq,char* filename )
 					if( tmpk1 && tmpv1 )
 					{
 						
-						char *key = clib_strdup( YAJL_GET_STRING(tmpk1));
+						/*char *key = clib_strdup( YAJL_GET_STRING(tmpk1));
 						int key_length = (int)strlen ( key ) + 1;
 						char* value = clib_strdup( YAJL_GET_STRING(tmpv1));
 						int value_length = (int)strlen ( value ) + 1;						
 						printf ( "Inserting [%s -> %s]\n", key, value );
 						insert_c_map ( eq->subdev , key, key_length, &value, value_length); 
+						
 						free ( key );
-						free ( value );
+						free ( value );*/
 					}
 				}			
 			}

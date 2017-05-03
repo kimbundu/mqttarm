@@ -1,6 +1,7 @@
 #ifndef _DEVICEBOAT_COMM_H_
 #define _DEVICEBOAT_COMM_H_
-#include "./cstl/inc/c_lib.h"
+#include "dictionary.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -15,7 +16,7 @@ typedef struct  equpment_struct
 	int 	type;
 	int		status;
 	int		nsubsize;
-	struct  clib_map* subdev;
+	dictionary_t  *  mysubDev; 
 	
 }equpment_t;
 	

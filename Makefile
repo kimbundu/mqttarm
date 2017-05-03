@@ -5,19 +5,18 @@
 #MQTTLIB_A = paho-mqtt3a
 MQTTLIB_AS = paho-mqtt3as
 
-CC = gcc
-#CC = arm-linux-gnueabihf-gcc
+#CC = gcc
+CC = arm-linux-gnueabihf-gcc
 
 
 CFLAGS = -g -Wall
 OBJECTS = foobar.o mqtt.o serialscomm.o deviceboat.o xprotocol.o 
-OBJECTS += config.o cfg_util.o
+OBJECTS += config.o cfg_util.o dictionary.o hash.o 
 INCFLAGS = -I./
 LDFLAGS =
 LIBS = -l$(MQTTLIB_AS) 
 LIBS += -lpthread 
 LIBS += -lyajl_s
-LIBS += -lclib
 
 ifeq ($(CC),gcc)
 CFLAGS += -I/home/kim/usr/x86/mqtt/include
@@ -26,7 +25,6 @@ LDFLAGS = -Wl,-rpath,/usr/lib/
 LDFLAGS += -L/home/kim/usr/x86/mqtt/lib 
 #LDFLAGS += -L/home/kim/usr/x86/openssl/lib
 LDFLAGS += -L/home/kim/usr/x86/yajl-2.1.1/lib
-LDFLAGS += -L./cstl/src/
 export LD_LIBRARY_PATH=/usr/local/lib 
 else
 CFLAGS += -I/home/kim/usr/arm/yajl-2.1.1/include
