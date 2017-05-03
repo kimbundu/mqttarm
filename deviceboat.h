@@ -31,7 +31,7 @@ char * getsubDevValue( equpment_t* eq,char* subdevNO );
 char * setsubDevValue( equpment_t* eq,char* subDevNO, char* subvalue );
 char * getMeasure2Json(equpment_t* eq,char* eqno,int opcode);
 char * getSubCtrl2Json(equpment_t* eq,char* eqno,char* subDevNO, char* subvalue , char * userid);
-
+char * getDevCtrl2Json(equpment_t* eq,char* eqno,char * userid );
 
 	
 #ifdef __cplusplus

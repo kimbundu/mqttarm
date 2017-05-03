@@ -10,6 +10,18 @@
 #include <yajl/yajl_parse.h>
 #include <yajl/yajl_gen.h>
 
+static int measureSum = 5;
+static char* QuoName[] = { "COD", "pH", "DO", "BOD", "TOC" };
+static float QueValue[] = { 12.2, 5.6, 12.5, 23.6, 44.5 };
+
+
+//0~100 random
+static int r(int fanwei)
+{
+ 	srand((unsigned)time(NULL)); 
+  	return rand()%fanwei;  
+}
+
 
 
 char * getsubDevValue( equpment_t* eq, char* subdevNO )
@@ -138,14 +150,83 @@ yajl_gen_status end_array(void *ctx)
     return __stat;  
 } 
 
+/*
+ * 
+ * 							"{\"ret\":\"0\","
+							"\"desc\":\"OK\","
+							"\"operateCode\":\"105\","
+							"\"equipmentNo\":\"%s\","
+							"\"equipmentStatus\":\"1\","
+							"\"userId\":\"%s\"}", equipmentid, userid);
+
+*/
+char * getDevCtrl2Json(  equpment_t* eq,char* eqno,char * userid )
+{
+
+	yajl_info yajlinfo;  
+    yajl_init (&yajlinfo);
+	unsigned char* buf=NULL;  
+    size_t buflen; 
+	unsigned char *key = "operateCode";  
+    unsigned char *value = "105";  
+
+
+	begin_map(&yajlinfo);
+	
+    key = "ret";  
+    value = "1"; 
+	yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
+	yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));
+
+	key = "desc";  
+	value = " ";	
+	yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
+	yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));
+
+	key = "operateCode";  
+	value = "105"; 
+	yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
+	yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));
+
+	key = "equipmentNo";  
+	value = (unsigned char*)eqno;
+	if( value == NULL ) value=" "; 
+	yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
+	yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));
+
+
+	key = "equipmentStatus";  
+	value = (unsigned char*)"1";
+	yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
+	yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));
+
+	key = "userId";  
+	value = (unsigned char*)userid;
+	yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
+	yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));
+
+	end_map(&yajlinfo);
+	yajl_gen_get_buf(yajlinfo.gen, &buf, &buflen);  
+    yajl_info_free(&yajlinfo);
+	return buf;
+}
+
+	/*	sprintf( strreturn, "{\"ret\":\"0\","
+							"\"desc\":\"OK\","
+							"\"operateCode\":\"106\","
+							"\"equipmentNo\":\"%s\","
+							"\"childEquipmentNo\":\"%s\","
+							"\"childEquipmentOpValue\":\"%d\","
+							"\"userId\":\"%s\"}", equipmentid, childEqNo,mvalue,userid );
+	*/
+
 char * getSubCtrl2Json(equpment_t* eq,char* eqno,char* subDevNO, char* subvalue, char * userid )
 {
 	yajl_info yajlinfo;  
 	char *mybuffer=NULL;
 	size_t buflen; 
-
 	unsigned char *key = "ret";  
-	unsigned char *value = "1";  
+	unsigned char *value = "1"; 
 
 	yajl_init (&yajlinfo);
 	begin_map(&yajlinfo);
@@ -180,7 +261,7 @@ char * getSubCtrl2Json(equpment_t* eq,char* eqno,char* subDevNO, char* subvalue,
 
 
 	key = "childEquipmentOpValue";  
-	value = (unsigned char*) subvalue
+	value = (unsigned char*) subvalue;
 	if( value == NULL ) value=" "; 
 	yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
 	yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));
@@ -196,19 +277,62 @@ char * getSubCtrl2Json(equpment_t* eq,char* eqno,char* subDevNO, char* subvalue,
 	yajl_info_free(&yajlinfo);
 	return mybuffer;
 }
+/*
+ * 
+ * "{"
+				"\"operateCode\":\"202\","
+				"\"equipmentNo\":\"%s\","
+				"\"equipmentName\":\"%s\","
+				"\"temperature\":\"20\","
+				"\"weather\":\"\","
+				"\"remarks\":\"OK!\","
+				"\"locationName\":\"%s\","
+				"\"longitude\":\"%g\","
+				"\"latitude\":\"%g\","
+				"\"monitorData\":["
+				"{\"quotaName\":\"pH\","
+				 "\"position\":\"1\","
+				 "\"quotaValue\":\"%.1f\"},"
+		        "{\"quotaName\":\"DO\","
+				 "\"position\":\"1\","
+				 "\"quotaValue\":\"%g\"},"
+				"{\"quotaName\":\"COD\","
+				 "\"position\":\"1\","
+				 "\"quotaValue\":\"%g\"}]"
+				 "}", equipmentid,equipmentdev.name,
+				*/
+
 
 char * getMeasure2Json(equpment_t* eq,char* eqno,int opcode)
 {
+
+
+
+	double y=31.4039070000 + r(10)*0.001;
+	double x=121.0287980000+ r(10)*0.001;
+	
+	//float ph=7.5+r(4);
+	//float cod=20.2+r(10);
+	//float mdo=0.8+r(25);
+	char localstr[16];	
+	
 	yajl_info yajlinfo;  
     yajl_init (&yajlinfo);
-	char sztemp[16];
+	char sztemp[32];
 	unsigned char* buf = NULL;  
     size_t buflen; 
 	int i;
 	unsigned char *key = "operateCode";  
     unsigned char *value = "202";  
-	
 
+
+	eq->longtitude=x;
+	eq->latitude=y;
+
+
+	sprintf( localstr,"local%d", r(1000) );
+
+	
 	begin_map(&yajlinfo);
 	
     yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
@@ -245,18 +369,26 @@ char * getMeasure2Json(equpment_t* eq,char* eqno,int opcode)
 
 
 	key = "locationName";  
-    value = " "; 
+    value = (unsigned char*)localstr; 
 	yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
     yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));
 
+
+	//eq->longtitude=x;
+	//eq->latitude=y;
+
 	key = "longitude";  
-    value = (unsigned char*)"0000"; 
+	sprintf(sztemp,"%g",eq->longtitude);
+    value = (unsigned char*)sztemp; 
+	
 	yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
     yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));
 
 
 	key = "latitude";  
-    value = (unsigned char*)"0000"; 
+    sprintf(sztemp,"%g",eq->latitude);
+    value = (unsigned char*)sztemp; 
+	
 	yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
     yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));
 	
@@ -264,25 +396,34 @@ char * getMeasure2Json(equpment_t* eq,char* eqno,int opcode)
 	key="monitorData";
 	yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
 	begin_array(&yajlinfo);
-	
-    for(i=0;i<eq->nsubsize;i++) 
+
+
+
+
+
+
+//static float QueValue[] = { 12.2, 5.6, 12.5, 23.6, 44.5 };
+
+
+    for(i=0;i<measureSum;i++) 
 	{  
        //往对象中插入数据  
 	   begin_map(&yajlinfo);
 		key = "quotaName";  
-		value = (unsigned char*)"0000"; 
+		value = (unsigned char*)QuoName[i]; 
 		yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
 		yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));
 
 
 		key = "position";  
-		value = (unsigned char*)"0000"; 
+		value = (unsigned char*)"00"; 
 		yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
 		yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));
 
 
 		key = "quotaValue";  
-		value = (unsigned char*)"0000"; 
+		sprintf("%g",QuoName[i]+r(10));
+    	value = (unsigned char*)sztemp; 
 		yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
 		yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));	
 		
@@ -290,10 +431,10 @@ char * getMeasure2Json(equpment_t* eq,char* eqno,int opcode)
     }
 	end_array(&yajlinfo); 
 	end_map(&yajlinfo);
-
+	
 	yajl_gen_get_buf(yajlinfo.gen, &buf, &buflen);  
     yajl_info_free(&yajlinfo);
-	printf("%s\n", buf);  
+	//printf("%s\n", buf);  
 	return buf;
 
 }
@@ -402,7 +543,6 @@ char * subdevtostring( equpment_t* eq, char* eqno, int opcode )
 
 	yajl_gen_get_buf(yajlinfo.gen, &buf, &buflen);  
     yajl_info_free(&yajlinfo);
-	printf("%s\n", buf);  
 	return buf;
 
 }
@@ -510,9 +650,7 @@ char * getRegInfo( equpment_t* eq,char* filename )
 							 eq->subdevname[i] = (char*)malloc( strlen(szkey) + 1 );
 							 eq->subdevvalue[i] = (char*)malloc( strlen(szval) + 1 );
 							 strcpy(eq->subdevname[i], szkey);
-							 strcpy(eq->subdevvalue[i], szval);
-							
-							 //dictionary_insert(eq->mysubDev, szkey, szval, strlen( szval) );
+							 strcpy(eq->subdevvalue[i], szval);							
 
 						}
 					}	

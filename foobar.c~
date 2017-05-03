@@ -19,17 +19,17 @@
 comm_t	   g_comm;	//com port
 //connection options
 #define BUFFSIZE 64
-//static int myx1value=0;
-//static int myy1value=100;
 
 equpment_t     equipmentdev;
+mqttClient_t   g_myClient;
+
 char 		   strcfgfilename[128];
 char 		   strdevfilename[128];
-int 		   g_reged=0;
 char *		   equipmentid=NULL;
 char *  	   strreginfo=NULL;
+
 int			   g_Exit=0;
-mqttClient_t   g_myClient;
+int 		   g_reged=0;
 
 
 char pubNormalTopic[64];
@@ -151,9 +151,8 @@ static void sCtrl_EquipmentALL_proc(char * info)
 	yajl_val v;
 	int len;
 	char* userid = NULL;
-	char strreturn[256];
-	const char * path[] = { "userId", (const char *) 0 };
-	
+	char* strreturn;//[256];
+	const char * path[] = { "userId", (const char *) 0 };	
 	node = yajl_tree_parse((const char *) info, NULL, 0);
 	if( node != NULL )
 	{
@@ -175,21 +174,22 @@ static void sCtrl_EquipmentALL_proc(char * info)
 	if ( userid != NULL )
 	{	
 
-		sprintf( strreturn,
+		/*sprintf( strreturn,
 							"{\"ret\":\"0\","
 							"\"desc\":\"OK\","
 							"\"operateCode\":\"105\","
 							"\"equipmentNo\":\"%s\","
 							"\"equipmentStatus\":\"1\","
-							"\"userId\":\"%s\"}", equipmentid, userid);
+							"\"userId\":\"%s\"}", equipmentid, userid);*/
 	
-	
+		strreturn = getDevCtrl2Json(&equipmentdev,equipmentid,userid);
 		send_mqttMsg(&g_myClient,pubNormalTopic,strreturn,strlen(strreturn));
+		free(strreturn);
 	}
 
 	//yajl_tree_free(v);
 	//yajl_tree_free(node);
-	
+
 	if(userid != NULL)	free(userid);
 }
 //106 server 2 client information
@@ -202,18 +202,13 @@ static void sCtrl_EquipmentSub_proc(char * info)
 	yajl_val node;
 	yajl_val v;
 	int len;
-	yajl_info yajlinfo;  
-	
-	size_t buflen; 
-
-	unsigned char *key = "ret";  
-	unsigned char *value = "1";  
 
 	const char * path[] = { "userId", (const char *) 0 };
 	const char * path1[] = { "childEquipmentNo", (const char *) 0 };
 	const char * path2[] = { "childEquipmentOpValue", (const char *) 0 };
 	
 	node = yajl_tree_parse((const char *) info, NULL, 0);
+	
 	if( node != NULL )
 	{
 		v = yajl_tree_get(node, path, yajl_t_string);
@@ -241,25 +236,16 @@ static void sCtrl_EquipmentSub_proc(char * info)
 			//printf("value:%s\n",YAJL_GET_STRING(v) );
 		}
 
-		/*if( strcmp( childEqNo,"X1" ) == 0 )
-		{
-			myx1value=mvalue;
-		}
-		else if( strcmp( childEqNo,"Y1" ) == 0 )
-		{
-			myy1value=mvalue;
-		}*/
-
-		
-
-	}
-
-	
+	}	
 
 	if( childEqNo != NULL && userid != NULL )
 	{
 
-		
+
+	  setsubDevValue( &equipmentdev,childEqNo,childEqVal );	
+
+	  strreturn = getSubCtrl2Json(&equipmentdev,equipmentid,
+	                               childEqNo,childEqVal,userid);	
 	//printf("%s\n", buf);  
 	
 	/*	sprintf( strreturn, "{\"ret\":\"0\","
@@ -298,20 +284,12 @@ static void cUnreg_Equipment()
 
    if( equipmentid != NULL )
    {
-	   send_mqttMsg(&g_myClient,pubNormalTopic,strunreg,strlen(strunreg));
-
-	  
+	   send_mqttMsg(&g_myClient,pubNormalTopic,strunreg,strlen(strunreg));	  
    }
 	else
 		printf( "equipmentid is NULL\n ");
 }
 
-//0~100 random
-static int r(int fanwei)
-{
- 	srand((unsigned)time(NULL)); 
-  	return rand()%fanwei;  
-}
 
 // uploading the information of device status
 void cStatus_uploading()//104  client 2 server
@@ -321,11 +299,8 @@ void cStatus_uploading()//104  client 2 server
 	if( equipmentid != NULL )
 	{
 
-		mystatus = subdevtostring(&equipmentdev, equipmentid,104);
-
-	
+		mystatus = subdevtostring(&equipmentdev, equipmentid,104);	
 		send_mqttMsg(&g_myClient,pubNormalTopic,mystatus ,strlen(mystatus ));
-
 		free(mystatus);
 	}
    else
@@ -337,24 +312,10 @@ void cStatus_uploading()//104  client 2 server
 // uploading the information of measurement
 static void cData_uploading()//202  client 2 server
 {
-
-	char localstr[64];	
-	char mydata[512];
-
-	double y=31.4039070000 + r(10)*0.001;
-	double x=121.0287980000+ r(10)*0.001;
-	
-	float ph=7.5+r(4);
-	float cod=20.2+r(10);
-	float mdo=0.8+r(25);
-
-	sprintf( localstr,"local%d", r(1000) );
-	
-
+	char *mydata;//2];
 	if( equipmentid != NULL )
 	{
-		
-		sprintf(mydata,
+		/*sprintf(mydata,
 				"{"
 				"\"operateCode\":\"202\","
 				"\"equipmentNo\":\"%s\","
@@ -376,10 +337,10 @@ static void cData_uploading()//202  client 2 server
 				 "\"position\":\"1\","
 				 "\"quotaValue\":\"%g\"}]"
 				 "}", equipmentid,equipmentdev.name,
-		        localstr,x,y,ph,mdo,cod);              
-
-	
+		        localstr,x,y,ph,mdo,cod);  */            
+		mydata = getMeasure2Json(&equipmentdev,equipmentid,202);
 		send_mqttMsg(&g_myClient,pubNormalTopic,mydata ,strlen(mydata ));
+		free(mydata );
    }
    else
    {
@@ -387,10 +348,6 @@ static void cData_uploading()//202  client 2 server
    }
 		
 }
-
-
-
-
 //mqtt procedure
 static int RecvProc( char* data,char* topic, int len )
 {
@@ -582,7 +539,7 @@ myconnection:
 	sleep(2);
 	
 //try connecting when lost
-	for(;;)
+	/*for(;;)
 	{
 
 		if( !MQTTAsync_isConnected(g_myClient.gclient) )
@@ -592,7 +549,7 @@ myconnection:
 		}
 
 		sleep(2);
-	}
+	}*/
 
 //command mode for debug
 	write(STDOUT_FILENO, ":", 1);
