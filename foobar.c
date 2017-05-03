@@ -19,8 +19,8 @@
 comm_t	   g_comm;	//com port
 //connection options
 #define BUFFSIZE 64
-static int myx1value=0;
-static int myy1value=100;
+//static int myx1value=0;
+//static int myy1value=100;
 
 equpment_t     equipmentdev;
 char 		   strcfgfilename[128];
@@ -197,11 +197,12 @@ static void sCtrl_EquipmentSub_proc(char * info)
 {
 	char* userid = NULL;
 	char* childEqNo= NULL;
-	char strreturn[256];
+	char* childEqVal=NULL;
+	char *strreturn;//[256];
 	yajl_val node;
 	yajl_val v;
 	int len;
-	int mvalue;
+	
 
 	const char * path[] = { "userId", (const char *) 0 };
 	const char * path1[] = { "childEquipmentNo", (const char *) 0 };
@@ -229,20 +230,20 @@ static void sCtrl_EquipmentSub_proc(char * info)
 		}
 		v= yajl_tree_get(node, path2,yajl_t_string);
 		if(v)
-		{		
-			mvalue = atoi(YAJL_GET_STRING(v));
-
-			printf("value:%s\n",YAJL_GET_STRING(v) );
+		{	
+			childEqVal = YAJL_GET_STRING(v);
+			//mvalue = atoi(YAJL_GET_STRING(v));
+			//printf("value:%s\n",YAJL_GET_STRING(v) );
 		}
 
-		if( strcmp( childEqNo,"X1" ) == 0 )
+		/*if( strcmp( childEqNo,"X1" ) == 0 )
 		{
 			myx1value=mvalue;
 		}
 		else if( strcmp( childEqNo,"Y1" ) == 0 )
 		{
 			myy1value=mvalue;
-		}
+		}*/
 
 		
 
@@ -252,16 +253,21 @@ static void sCtrl_EquipmentSub_proc(char * info)
 
 	if( childEqNo != NULL && userid != NULL )
 	{
+
+		
+	//printf("%s\n", buf);  
 	
-		sprintf( strreturn, "{\"ret\":\"0\","
+	/*	sprintf( strreturn, "{\"ret\":\"0\","
 							"\"desc\":\"OK\","
 							"\"operateCode\":\"106\","
 							"\"equipmentNo\":\"%s\","
 							"\"childEquipmentNo\":\"%s\","
 							"\"childEquipmentOpValue\":\"%d\","
 							"\"userId\":\"%s\"}", equipmentid, childEqNo,mvalue,userid );
+	*/
 
 		send_mqttMsg(&g_myClient,pubNormalTopic,strreturn,strlen(strreturn));
+		free(strreturn);
 	}
 
    //yajl_tree_free(v);
@@ -305,37 +311,17 @@ static int r(int fanwei)
 // uploading the information of device status
 void cStatus_uploading()//104  client 2 server
 {
-	char mystatus[512];
+	char *mystatus;//[512];
 
 	if( equipmentid != NULL )
 	{
-	
-		sprintf(mystatus,
-				"{"
-				"\"operateCode\":\"104\","
-				"\"equipmentNo\":\"%s\","
-				"\"equipmentName\":\"%s\","
-				"\"equipmentType\":\"2\","
-				"\"company\":\"%s\"," 
-				"\"equipmentStatus\":\"1\","
-				"\"equipmentViewData\":\"NONE\","
-				"\"userId\":\"0000\","
-				"\"childEquipmentData\":["
-				"{\"childEquipmentNo\":\"B1\","
-				 "\"childEquipmentOpValue\":\"1\"},"
-		        "{\"childEquipmentNo\":\"X1\","
-				  "\"childEquipmentOpValue\":\"%d\"},"
-		        "{\"childEquipmentNo\":\"Y1\","
-				 "\"childEquipmentOpValue\":\"%d\"},"
-				"{\"childEquipmentNo\":\"B2\","
-				"\"childEquipmentOpValue\":\"1\"}]"
-				"}", 
-		        equipmentid, equipmentdev.name,equipmentdev.company, 
-		        myx1value,myy1value);
-		
-	
+
+		mystatus = subdevtostring(&equipmentdev, equipmentid,104);
+
 	
 		send_mqttMsg(&g_myClient,pubNormalTopic,mystatus ,strlen(mystatus ));
+
+		free(mystatus);
 	}
    else
    {
@@ -551,6 +537,12 @@ int main(int argc, char* argv[])
 	g_comm.baut=9600;
 	g_comm.status=0;
 	g_comm.recvFunction = serials_dataproc;
+
+//
+
+	//getRegInfo();
+	subdevtostring(&equipmentdev, equipmentid,104);
+	return;
 
 // open serials port for device's communication
 	if( open_com(&g_comm) !=0 )

@@ -1,6 +1,9 @@
 [Anjuta]
 Maximized=1
-Geometry=995x469+65+24
+Geometry=1371x724+65+24
+
+[File Loader]
+Files=../../foobar.c#211%%%../../deviceboat.c#151%%%../../deviceboat.h#29
 
 [Document Manager]
 bookmarks=<?xml version="1.0" encoding="UTF-8"?>\n<bookmarks/>\n

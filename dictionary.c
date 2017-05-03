@@ -8,11 +8,13 @@
 #define CHANGE 1
 #define HASH_SIZE   (256) 
 
-struct dictionary {
+struct dictionary 
+{
     hash_t* h;
 };
 
-static void hello() {
+static void hello() 
+{
     printf("hello world\n");
     printf("hello world\n");
 }

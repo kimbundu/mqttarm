@@ -9,7 +9,7 @@ CC = gcc
 #CC = arm-linux-gnueabihf-gcc
 
 
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall -Wnonnull -Wpointer-sign
 OBJECTS = foobar.o mqtt.o serialscomm.o deviceboat.o xprotocol.o 
 OBJECTS += config.o cfg_util.o dictionary.o hash.o 
 INCFLAGS = -I./

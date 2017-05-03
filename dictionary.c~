@@ -78,7 +78,7 @@ dictionary_t* dictionary_init_with_file(const char* url) {
 int dictionary_write_to_file(dictionary_t* dict, const char* url) {
 }
 
-#define DICTIONARY_TEST
+
 #ifdef DICTIONARY_TEST
 int main(int argc, char* argv[]) {
     dictionary_t* dict = dictionary_init();
