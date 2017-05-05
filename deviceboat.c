@@ -308,8 +308,8 @@ char * getMeasure2Json(equpment_t* eq,char* eqno,int opcode)
 
 
 
-	double y=31.4039070000 + r(10)*0.001;
-	double x=121.0287980000+ r(10)*0.001;
+	double y=31.4041070000 + r(10)*0.001;
+	double x=121.0297980000+ r(10)*0.001;
 	
 	//float ph=7.5+r(4);
 	//float cod=20.2+r(10);
@@ -572,8 +572,10 @@ char * getRegInfo( equpment_t* eq,char* filename )
 
 	file_len  = lseek(from_fd,0L,SEEK_END);
     lseek(from_fd,0L,SEEK_SET);
-	buf = (char*) malloc( file_len  );	
+	buf = (char*) malloc( file_len +1 );	
 	ret= read(from_fd, buf, file_len);
+
+	buf[file_len]=0;
 	
 	if( ret == file_len )
 	{	

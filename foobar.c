@@ -33,13 +33,17 @@ const char* pubRegistTopic="huachen/client";
 const char* subRegistTopic="huachen/server";
 static int up2ServerInfo = 0;
 
+static int inWhatStatus = 0; //1 --unreg  2--reg
+
+
+
 Opts_t OPTS=
 {
-	"huachenidcc",
+	"huachenidcc11",
 	1,
 	NULL,//"test", //NULL, user
 	NULL,//"huachen123456", //password
-	"tcp://123.57.13.129:2883",//"tcp://192.168.10.45:1883",
+	"tcp://116.62.117.121:1883",//"tcp://192.168.10.45:1883",123.57.13.129:2883
 	10000L,
 	20,
 	"huachen/server"
@@ -74,12 +78,16 @@ void Write_cfg()
     config_set_value_string(cfg, "OPTIONS", "equipmentid", equipmentid);
 	config_save(cfg, strcfgfilename);
     config_close(cfg);
+	
 }
 
 // register procedure for 101
 //101 server 2 client information
 void sReg_Equipment_proc(char * info)
 {
+
+	if( inWhatStatus != 2 ) return; //unreg
+	
 	yajl_val node,v;
 	int len;
 	char* myeqid=NULL;
@@ -105,18 +113,25 @@ void sReg_Equipment_proc(char * info)
 				sprintf(pubNormalTopic,"huachen/client/%s", equipmentid);
 				subs_mqttMsg(&g_myClient,subNoramlTopic); //test subscibe
 				Write_cfg();
+				
+		
 			}
 		}	
 	}
 	
 	//ajl_tree_free(node);
 	//yajl_tree_free(v);
+	inWhatStatus = 0;
 	if( myeqid != NULL ) free(myeqid);
 }
 //102 server 2 client information
 static void sUnreg_Equipment_proc(char * info)
 {
 	printf(" Unregister!\n");
+
+	if( inWhatStatus != 1 ) return; //unreg
+	
+		
 	if( x_getReturnInfo(info )  == 0 )
 	{
 		printf("Sucessful to Unregister!\n");
@@ -125,11 +140,14 @@ static void sUnreg_Equipment_proc(char * info)
 	    g_reged=0;
 	    Write_cfg();
 		
+		
 	}
 	else
 	{
 		printf("Failed to Unregister!\n");
 	}
+
+	inWhatStatus = 0;
 }
 
 //103  server 2 client information
@@ -250,6 +268,7 @@ static void cReg_Equipment()
 	if( strreginfo != NULL)
 	{
 		send_mqttMsg(&g_myClient,pubRegistTopic,strreginfo,strlen(strreginfo));
+		inWhatStatus =2;
 	}
 }
 //102  client 2 server
@@ -259,7 +278,8 @@ static void cUnreg_Equipment()
 
    if( equipmentid != NULL )
    {
-	   send_mqttMsg(&g_myClient,pubNormalTopic,strunreg,strlen(strunreg));	  
+	   send_mqttMsg(&g_myClient,pubNormalTopic,strunreg,strlen(strunreg));
+	   inWhatStatus  = 1;
    }
 	else
 		printf( "equipmentid is NULL\n ");
@@ -354,14 +374,18 @@ static int RecvProc( char* data,char* topic, int len )
 		if( opcode == 101 )
 		{	
 			sReg_Equipment_proc(mybuf);
-		}		
+		}
+		else if(opcode == 102  )
+		{
+			sUnreg_Equipment_proc(mybuf);
+		}
 	}
 	else if( strcmp(subNoramlTopic,topic) == 0 )
 	{
 		switch(opcode)
 		{
 			case 102:
-				sUnreg_Equipment_proc(mybuf);
+				
 				break;
 			case 103:
 				sStatus_uploading_proc(mybuf);
@@ -412,10 +436,10 @@ static void Start_ProcTimer()
     signal(SIGALRM, TimerFun_sending_status);
     memset(&tick, 0, sizeof(tick));
     //Timeout to run first time
-    tick.it_value.tv_sec = 600;
+    tick.it_value.tv_sec = 3000;
     tick.it_value.tv_usec = 0;
     //After first, the Interval time for clock
-    tick.it_interval.tv_sec = 600;
+    tick.it_interval.tv_sec = 3000;
     tick.it_interval.tv_usec = 0;
 
     if(setitimer(ITIMER_REAL, &tick, NULL) < 0)
@@ -490,7 +514,7 @@ myconnection:
 	sleep(2);
 	
 //try connecting when lost
-/*
+
 	for(;;)
 	{
 
@@ -502,7 +526,7 @@ myconnection:
 
 		sleep(2);
 	}
-*/
+
 //command mode for debug
 	write(STDOUT_FILENO, ":", 1);
 	while ((n = read(STDIN_FILENO, buf_show, BUFFSIZE)) > 0)
