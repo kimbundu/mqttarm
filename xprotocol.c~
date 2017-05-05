@@ -17,7 +17,7 @@
 
 //static unsigned char fileData[65536];
 
-
+/*
 int x_getReturnInfo(char * strinfo)
 {
 	int ret=0;
@@ -44,7 +44,7 @@ int x_getReturnInfo(char * strinfo)
 		ret = atoi(YAJL_GET_STRING(v));
 	}
 	//yajl_tree_free( v );
-	//yajl_tree_free( node);
+	yajl_tree_free( node);
 	
 	return ret;
 

@@ -174,7 +174,7 @@ char * getDevCtrl2Json(  equpment_t* eq,char* eqno,char * userid )
 	begin_map(&yajlinfo);
 	
     key = "ret";  
-    value = "1"; 
+    value = "0"; 
 	yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
 	yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));
 
@@ -232,7 +232,7 @@ char * getSubCtrl2Json(equpment_t* eq,char* eqno,char* subDevNO, char* subvalue,
 	begin_map(&yajlinfo);
 
 	key = "ret";  
-    value = "1"; 
+    value = "0"; 
 	yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
 	yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));
 
@@ -415,7 +415,7 @@ char * getMeasure2Json(equpment_t* eq,char* eqno,int opcode)
 
 
 		key = "quotaValue";  
-		sprintf(sztemp,"%g",QuoName[i]+r(10));
+		sprintf(sztemp,"%g",QueValue[i]+r(10));
     	value = (unsigned char*)sztemp; 
 		yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
 		yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));	
