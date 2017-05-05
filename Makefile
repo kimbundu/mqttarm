@@ -5,8 +5,8 @@
 #MQTTLIB_A = paho-mqtt3a
 MQTTLIB_AS = paho-mqtt3as
 
-CC = gcc
-#CC = arm-linux-gnueabihf-gcc
+#CC = gcc
+CC = arm-linux-gnueabihf-gcc
 
 
 CFLAGS = -g #-Wall -Wnonnull -Wpointer-sign
@@ -29,7 +29,7 @@ export LD_LIBRARY_PATH=/usr/local/lib
 else
 CFLAGS += -I/home/kim/usr/arm/yajl-2.1.1/include
 CFLAGS += -I/home/kim/usr/arm/mqtt/include
-LDFLAGS = -Wl,-rpath,/home/kim/usr/arm/openssl/lib
+#LDFLAGS = -Wl,-rpath,/home/kim/usr/arm/openssl/lib
 LDFLAGS += -L/home/kim/usr/arm/mqtt/lib 
 LDFLAGS += -L/home/kim/usr/arm/yajl-2.1.1/lib
 endif

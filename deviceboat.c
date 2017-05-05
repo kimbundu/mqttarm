@@ -397,14 +397,7 @@ char * getMeasure2Json(equpment_t* eq,char* eqno,int opcode)
 	yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
 	begin_array(&yajlinfo);
 
-
-
-
-
-
 //static float QueValue[] = { 12.2, 5.6, 12.5, 23.6, 44.5 };
-
-
     for(i=0;i<measureSum;i++) 
 	{  
        //往对象中插入数据  

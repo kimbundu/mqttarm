@@ -14,8 +14,6 @@
 #include "config.h"
 #include "deviceboat.h"
 
-
-
 comm_t	   g_comm;	//com port
 //connection options
 #define BUFFSIZE 64
@@ -27,11 +25,8 @@ char 		   strcfgfilename[128];
 char 		   strdevfilename[128];
 char *		   equipmentid=NULL;
 char *  	   strreginfo=NULL;
-
 int			   g_Exit=0;
 int 		   g_reged=0;
-
-
 char pubNormalTopic[64];
 char subNoramlTopic[64];
 const char* pubRegistTopic="huachen/client";
@@ -67,7 +62,7 @@ void Read_cfg()
 		equipmentid[strlen(eqid)] = 0;
 
 	}
-	
+
 	g_reged = atoi(szreg);
     config_close(cfg);
 }
@@ -173,18 +168,10 @@ static void sCtrl_EquipmentALL_proc(char * info)
 		
 	if ( userid != NULL )
 	{	
-
-		/*sprintf( strreturn,
-							"{\"ret\":\"0\","
-							"\"desc\":\"OK\","
-							"\"operateCode\":\"105\","
-							"\"equipmentNo\":\"%s\","
-							"\"equipmentStatus\":\"1\","
-							"\"userId\":\"%s\"}", equipmentid, userid);*/
 	
 		strreturn = getDevCtrl2Json(&equipmentdev,equipmentid,userid);
 		send_mqttMsg(&g_myClient,pubNormalTopic,strreturn,strlen(strreturn));
-		free(strreturn);
+		//free(strreturn);
 	}
 
 	//yajl_tree_free(v);
@@ -232,8 +219,6 @@ static void sCtrl_EquipmentSub_proc(char * info)
 		if(v)
 		{	
 			childEqVal = YAJL_GET_STRING(v);
-			//mvalue = atoi(YAJL_GET_STRING(v));
-			//printf("value:%s\n",YAJL_GET_STRING(v) );
 		}
 
 	}	
@@ -246,19 +231,9 @@ static void sCtrl_EquipmentSub_proc(char * info)
 
 	  strreturn = getSubCtrl2Json(&equipmentdev,equipmentid,
 	                               childEqNo,childEqVal,userid);	
-	//printf("%s\n", buf);  
-	
-	/*	sprintf( strreturn, "{\"ret\":\"0\","
-							"\"desc\":\"OK\","
-							"\"operateCode\":\"106\","
-							"\"equipmentNo\":\"%s\","
-							"\"childEquipmentNo\":\"%s\","
-							"\"childEquipmentOpValue\":\"%d\","
-							"\"userId\":\"%s\"}", equipmentid, childEqNo,mvalue,userid );
-	*/
 
 		send_mqttMsg(&g_myClient,pubNormalTopic,strreturn,strlen(strreturn));
-		free(strreturn);
+		//free(strreturn);
 	}
 
    //yajl_tree_free(v);
@@ -290,9 +265,9 @@ static void cUnreg_Equipment()
 		printf( "equipmentid is NULL\n ");
 }
 
-
+//104  client 2 server
 // uploading the information of device status
-void cStatus_uploading()//104  client 2 server
+void cStatus_uploading()
 {
 	char *mystatus;//[512];
 
@@ -301,46 +276,24 @@ void cStatus_uploading()//104  client 2 server
 
 		mystatus = subdevtostring(&equipmentdev, equipmentid,104);	
 		send_mqttMsg(&g_myClient,pubNormalTopic,mystatus ,strlen(mystatus ));
-		free(mystatus);
+		//free(mystatus);
 	}
    else
    {
 		printf( "equipmentid is NULL\n ");
    }
 }
-
+//202  client 2 server
 // uploading the information of measurement
-static void cData_uploading()//202  client 2 server
+static void cData_uploading()
 {
 	char *mydata;//2];
 	if( equipmentid != NULL )
 	{
-		/*sprintf(mydata,
-				"{"
-				"\"operateCode\":\"202\","
-				"\"equipmentNo\":\"%s\","
-				"\"equipmentName\":\"%s\","
-				"\"temperature\":\"20\","
-				"\"weather\":\"\","
-				"\"remarks\":\"OK!\","
-				"\"locationName\":\"%s\","
-				"\"longitude\":\"%g\","
-				"\"latitude\":\"%g\","
-				"\"monitorData\":["
-				"{\"quotaName\":\"pH\","
-				 "\"position\":\"1\","
-				 "\"quotaValue\":\"%.1f\"},"
-		        "{\"quotaName\":\"DO\","
-				 "\"position\":\"1\","
-				 "\"quotaValue\":\"%g\"},"
-				"{\"quotaName\":\"COD\","
-				 "\"position\":\"1\","
-				 "\"quotaValue\":\"%g\"}]"
-				 "}", equipmentid,equipmentdev.name,
-		        localstr,x,y,ph,mdo,cod);  */            
+     
 		mydata = getMeasure2Json(&equipmentdev,equipmentid,202);
 		send_mqttMsg(&g_myClient,pubNormalTopic,mydata ,strlen(mydata ));
-		free(mydata );
+		//free(mydata );
    }
    else
    {
@@ -429,15 +382,18 @@ static int RecvProc( char* data,char* topic, int len )
 	}
 
 	if( mybuf!=NULL) free(mybuf);	
-	//senddata_com(&g_comm,data,len );    
+
+	senddata_com(&g_comm,data,len );    
 	return 0;
 }
 // data procedure for serials port of my device
 static int serials_dataproc(char* data, int len )
 {           
     //send_mqttMsg(&g_myClient,pubTopic,data,len);
-	return 0;
+	//printf( "comrecv:%s\n", data );
 
+	
+	return 0;
 }
 
 //timer for uploading the inforamtion 
@@ -494,17 +450,12 @@ int main(int argc, char* argv[])
 	g_myClient.subscribed=0;
 	g_myClient.finished=0;
 
-	g_comm.devname="/dev/ttymxc1";
+	g_comm.devname="/dev/ttymxc3";
 	g_comm.devfd=-1;
-	g_comm.baut=9600;
+	g_comm.baut=115200;
 	g_comm.status=0;
 	g_comm.recvFunction = serials_dataproc;
 
-//
-
-	//getRegInfo();
-	subdevtostring(&equipmentdev, equipmentid,104);
-	return;
 
 // open serials port for device's communication
 	if( open_com(&g_comm) !=0 )
@@ -539,7 +490,7 @@ myconnection:
 	sleep(2);
 	
 //try connecting when lost
-	/*for(;;)
+	for(;;)
 	{
 
 		if( !MQTTAsync_isConnected(g_myClient.gclient) )
@@ -549,10 +500,10 @@ myconnection:
 		}
 
 		sleep(2);
-	}*/
+	}
 
 //command mode for debug
-	write(STDOUT_FILENO, ":", 1);
+	/*write(STDOUT_FILENO, ":", 1);
 	while ((n = read(STDIN_FILENO, buf_show, BUFFSIZE)) > 0)
     {
 		buf_show[n-1]=0;		
@@ -584,7 +535,7 @@ myconnection:
 			printf("Unknown Command!\n");
 		}
 		write(STDOUT_FILENO, ":", 1);        
-	}
+	}*/
 
 // destroy all
 	if( strreginfo != NULL )
