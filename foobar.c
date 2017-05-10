@@ -39,7 +39,7 @@ static int inWhatStatus = 0; //1 --unreg  2--reg
 
 Opts_t OPTS=
 {
-	"huachenidcc11",
+	"huachenidcc11",//,"huachenid238"
 	1,
 	NULL,//"test", //NULL, user
 	NULL,//"huachen123456", //password
@@ -514,7 +514,7 @@ myconnection:
 	sleep(2);
 	
 //try connecting when lost
-
+/*
 	for(;;)
 	{
 
@@ -526,7 +526,7 @@ myconnection:
 
 		sleep(2);
 	}
-
+*/
 //command mode for debug
 	write(STDOUT_FILENO, ":", 1);
 	while ((n = read(STDIN_FILENO, buf_show, BUFFSIZE)) > 0)

@@ -39,7 +39,7 @@ static int inWhatStatus = 0; //1 --unreg  2--reg
 
 Opts_t OPTS=
 {
-	"huachenidcc11",
+	"huachenid238",//,
 	1,
 	NULL,//"test", //NULL, user
 	NULL,//"huachen123456", //password

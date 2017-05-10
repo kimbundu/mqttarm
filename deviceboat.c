@@ -307,34 +307,25 @@ char * getMeasure2Json(equpment_t* eq,char* eqno,int opcode)
 {
 
 
+	yajl_info yajlinfo;  
+	yajl_init (&yajlinfo);
 
 	double y=31.4041070000 + r(10)*0.001;
 	double x=121.0297980000+ r(10)*0.001;
+
+	  
 	
-	//float ph=7.5+r(4);
-	//float cod=20.2+r(10);
-	//float mdo=0.8+r(25);
-	char localstr[16];	
 	
-	yajl_info yajlinfo;  
-    yajl_init (&yajlinfo);
-	char sztemp[32];
-	unsigned char* buf = NULL;  
     size_t buflen; 
 	int i;
 	unsigned char *key = "operateCode";  
     unsigned char *value = "202";  
-
-
-	eq->longtitude=x;
-	eq->latitude=y;
-
-
-	sprintf( localstr,"local%d", r(1000) );
-
+	char localstr[32];	
+	char sztemp[32];
+	unsigned char* buf = NULL;  
 	
-	begin_map(&yajlinfo);
 	
+	begin_map(&yajlinfo);	
     yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
     yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));
 	
@@ -368,14 +359,15 @@ char * getMeasure2Json(equpment_t* eq,char* eqno,int opcode)
     yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));
 
 
+	sprintf( localstr,"local%d", r(100) );
 	key = "locationName";  
     value = (unsigned char*)localstr; 
 	yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
     yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));
 
 
-	//eq->longtitude=x;
-	//eq->latitude=y;
+	eq->longtitude=x;
+	eq->latitude=y;
 
 	key = "longitude";  
 	sprintf(sztemp,"%g",eq->longtitude);
