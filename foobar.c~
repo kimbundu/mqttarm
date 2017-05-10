@@ -23,6 +23,7 @@ mqttClient_t   g_myClient;
 
 char 		   strcfgfilename[128];
 char 		   strdevfilename[128];
+char		   strmqttcfgFile[128];
 char *		   equipmentid=NULL;
 char *  	   strreginfo=NULL;
 int			   g_Exit=0;
@@ -37,9 +38,10 @@ static int inWhatStatus = 0; //1 --unreg  2--reg
 
 
 
-Opts_t OPTS=
+Opts_t OPTS;
+/*=
 {
-	"huachenid238",//,
+	"huachenidcc11",//,"huachenid238"
 	1,
 	NULL,//"test", //NULL, user
 	NULL,//"huachen123456", //password
@@ -47,8 +49,69 @@ Opts_t OPTS=
 	10000L,
 	20,
 	"huachen/server"
-};
+};*/
+//read config file for mqtt connection
+void Read_mqtt_Cfg()
+{
 
+	CONFIG *cfg = config_open(NULL);
+    bool  succ = config_load(cfg, strmqttcfgFile);
+
+	char* temp = config_get_value_string(cfg, "OPTIONS", "clientid", "huachenidcc11");
+	OPTS.clientid = strdup(temp);
+	
+	temp = config_get_value_string(cfg, "OPTIONS", "qos", "1");
+	OPTS.qos = atoi(temp);
+
+	temp = config_get_value_string(cfg, "OPTIONS", "address", "tcp://116.62.117.121:1883");
+	OPTS.address = strdup(temp);
+
+	temp = config_get_value_string(cfg, "OPTIONS", "timeout", "10000");
+	OPTS.timeout = atoi(temp);
+	
+	temp = config_get_value_string(cfg, "OPTIONS", "keepalive", "20");
+	OPTS.keepalive = atoi(temp);
+
+	temp = config_get_value_string(cfg, "OPTIONS", "topic", "huachen/server");
+	OPTS.topic = strdup(temp);
+	
+	temp = config_get_value_string(cfg, "OPTIONS", "username", "");
+	if( strlen(temp) > 0 )
+		OPTS.username = strdup(temp);
+	else
+		OPTS.username = NULL;
+	
+	
+	temp = config_get_value_string(cfg, "OPTIONS", "password", "");
+
+	if( strlen(temp) > 0 )
+		OPTS.password = strdup(temp);
+	else
+		OPTS.password = NULL;
+	
+
+	config_close(cfg);
+	
+	printf( "%s\n", OPTS.clientid);
+	printf( "%d\n", OPTS.qos);
+	printf( "%s\n", OPTS.address);
+	printf( "%d\n", OPTS.timeout);
+	printf( "%d\n", OPTS.keepalive);
+	printf( "%s\n", OPTS.topic);
+
+	if( OPTS.username != NULL )
+		printf( "%s\n", OPTS.username);
+	else
+		printf("username:NULL\n");
+
+
+	if( OPTS.password != NULL )
+		printf( "%s\n", OPTS.password);
+	else
+		printf("password:NULL\n");
+	
+    
+}
 //read config file for equipmentid
 void Read_cfg()
 {
@@ -164,8 +227,11 @@ static void sCtrl_EquipmentALL_proc(char * info)
 	yajl_val v;
 	int len;
 	char* userid = NULL;
-	char* strreturn;//[256];
-	const char * path[] = { "userId", (const char *) 0 };	
+	char* strreturn;
+	
+	const char * path[] = { "userId", (const char *) 0 };
+	const char * path1[] = { "equipmentStatus", (const char *) 0 };
+	
 	node = yajl_tree_parse((const char *) info, NULL, 0);
 	if( node != NULL )
 	{
@@ -179,6 +245,17 @@ static void sCtrl_EquipmentALL_proc(char * info)
 				strcpy(userid,YAJL_GET_STRING(v));
 			}
 		}
+
+		v = yajl_tree_get(node, path1, yajl_t_string);
+		if(v)
+		{
+			len = strlen(YAJL_GET_STRING(v));
+			if( len > 0 )
+			{
+				equipmentdev.status = atoi( YAJL_GET_STRING(v) );
+			}
+		}
+		
 
 	}
 				
@@ -460,13 +537,18 @@ int main(int argc, char* argv[])
 
 	sprintf( strcfgfilename, "%s/%s", pwdbuf,"device.config");
 	sprintf( strdevfilename, "%s/%s", pwdbuf,"device.description");
+	sprintf( strmqttcfgFile, "%s/%s", pwdbuf, "mqtt.config");
 	
 	strreginfo = getRegInfo(&equipmentdev,strdevfilename);
 	printf("%s\n",strreginfo);
 	
 //read config file and initializing parameters
 	Read_cfg();
+	Read_mqtt_Cfg();
+	
+return 0;
 	printf( "******Isreg=%d,equipmentid=%s********\n",g_reged ,equipmentid);
+
 	
 	g_myClient.recvFunction=RecvProc;
 	g_myClient.pOPTS=&OPTS;

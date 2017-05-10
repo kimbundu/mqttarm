@@ -20,8 +20,8 @@ typedef struct opts_struct
 	int   timeout;
 	int   keepalive;
 	char* topic;
-
 }Opts_t;
+
 
 typedef struct mqttclient_struct
 {

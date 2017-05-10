@@ -1,6 +1,4 @@
-[OPTIONS]
-IsReg	= 1
-equipmentid	= 860444640363409408
+
 clientid=huachenidcc11
 qos=1
 address=tcp://116.62.117.121:1883

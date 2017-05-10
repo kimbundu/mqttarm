@@ -169,7 +169,7 @@ char * getDevCtrl2Json(  equpment_t* eq,char* eqno,char * userid )
     size_t buflen; 
 	unsigned char *key = "operateCode";  
     unsigned char *value = "105";  
-
+	char sztemp[32];
 
 	begin_map(&yajlinfo);
 	
@@ -195,8 +195,9 @@ char * getDevCtrl2Json(  equpment_t* eq,char* eqno,char * userid )
 	yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));
 
 
-	key = "equipmentStatus";  
-	value = (unsigned char*)"1";
+	key = "equipmentStatus";
+	sprintf(sztemp,"%d",eq->status);
+	value = (unsigned char*)sztemp;
 	yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key));  
 	yajl_gen_string(yajlinfo.gen, (const unsigned char*)value, strlen(value));
 
@@ -519,8 +520,13 @@ char * subdevtostring( equpment_t* eq, char* eqno, int opcode )
 	{  
        //往对象中插入数据  
 	   begin_map(&yajlinfo);
+	   key="childEquipmentNo";
+	   yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key)); 
        yajl_gen_string(yajlinfo.gen, (const unsigned char*)eq->subdevname[i], strlen(eq->subdevname[i]));  
-       yajl_gen_string(yajlinfo.gen, (const unsigned char*)eq->subdevvalue[i], strlen(eq->subdevvalue[i])); 
+
+	   key="childEquipmentOpValue";
+	   yajl_gen_string(yajlinfo.gen, (const unsigned char*)key, strlen(key)); 	
+	   yajl_gen_string(yajlinfo.gen, (const unsigned char*)eq->subdevvalue[i], strlen(eq->subdevvalue[i])); 
        end_map(&yajlinfo);
     }
 	end_array(&yajlinfo); 
