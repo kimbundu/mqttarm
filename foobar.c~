@@ -50,6 +50,9 @@ Opts_t OPTS;
 	20,
 	"huachen/server"
 };*/
+
+
+
 //read config file for mqtt connection
 void Read_mqtt_Cfg()
 {
@@ -526,6 +529,56 @@ static void Start_ProcTimer()
 }
 
 
+static int get_command()
+{
+    fd_set rfds;
+    struct timeval tv;
+    int ch = 0,n=0;
+	char buf_show[BUFFSIZE];
+	
+    FD_ZERO(&rfds);
+    FD_SET(0, &rfds);
+    tv.tv_sec = 0;
+    tv.tv_usec = 10; //timeout
+    //any key
+	
+    if (select(1, &rfds, NULL, NULL, &tv) > 0)
+    {
+		n = read(STDIN_FILENO, buf_show, BUFFSIZE);
+		buf_show[n-1]=0;		
+		
+		if( strcmp(buf_show,"101" ) ==0 )
+		{			
+			cReg_Equipment();
+		}
+		else if( strcmp(buf_show,"102") == 0 )
+        {
+			cUnreg_Equipment();			
+		}
+		else if( strcmp(buf_show,"104" ) == 0)
+        {
+			cStatus_uploading();
+		}
+		else if( strcmp(buf_show,"202" ) == 0 )
+        {
+			 cData_uploading();
+		}
+		else if( strcmp(buf_show,"exit" ) ==0 ||
+		         strcmp(buf_show,"q" ) ==0)
+        {
+			printf( "exit\n");
+			 exit(1);
+		}
+		else
+		{
+			printf("Unknown Command!\n");
+		}
+		return 1;
+	}
+
+    return 0;
+}
+
 int main(int argc, char* argv[])
 {
 
@@ -546,7 +599,7 @@ int main(int argc, char* argv[])
 	Read_cfg();
 	Read_mqtt_Cfg();
 	
-return 0;
+
 	printf( "******Isreg=%d,equipmentid=%s********\n",g_reged ,equipmentid);
 
 	
@@ -596,19 +649,22 @@ myconnection:
 	sleep(2);
 	
 //try connecting when lost
-/*
+
 	for(;;)
 	{
-
+		
 		if( !MQTTAsync_isConnected(g_myClient.gclient) )
 		{
-
 			goto myconnection;
 		}
+		write(STDOUT_FILENO, ":", 1);
+		int a = get_command();
 
-		sleep(2);
+		printf("%d\n\n",a);
+		
+		sleep(1);
 	}
-*/
+
 //command mode for debug
 	write(STDOUT_FILENO, ":", 1);
 	while ((n = read(STDIN_FILENO, buf_show, BUFFSIZE)) > 0)

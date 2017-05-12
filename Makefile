@@ -4,7 +4,6 @@
 #MQTTLIB_CS = paho-mqtt3cs
 #MQTTLIB_A = paho-mqtt3a
 MQTTLIB_AS = paho-mqtt3as
-
 CC = gcc
 #CC = arm-linux-gnueabihf-gcc
 
