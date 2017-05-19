@@ -146,7 +146,28 @@ void Write_cfg()
     config_close(cfg);
 	
 }
+void sHeart_beating_proc(char*info)
+{
 
+
+	char* strunreg = "{\"operateCode\":\"301\"}"
+		             "{\"equipmentid\":" ;
+
+
+	char mydata[128];
+	
+	if( equipmentid != NULL )
+	{
+
+		sprintf(mydata,"%s\"%s\"}",strunreg,equipmentid);
+		send_mqttMsg(&g_myClient,pubNormalTopic,mydata ,strlen(mydata ));
+   }
+   else
+   {
+		printf( "equipmentid is NULL\n ");
+   }
+	
+}
 // register procedure for 101
 //101 server 2 client information
 void sReg_Equipment_proc(char * info)
@@ -465,7 +486,6 @@ static int RecvProc( char* data,char* topic, int len )
 		switch(opcode)
 		{
 			case 102:
-				
 				break;
 			case 103:
 				sStatus_uploading_proc(mybuf);
@@ -478,6 +498,9 @@ static int RecvProc( char* data,char* topic, int len )
 				break;
 			case 106:
 				sCtrl_EquipmentSub_proc(mybuf);
+				break;
+			case 301: //heart beating
+				sHeart_beating_proc(mybuf);		
 				break;
 			default:
 				printf("unknown opcode:%d \n",opcode);
@@ -563,6 +586,10 @@ static int get_command()
         {
 			 cData_uploading();
 		}
+		else if( strcmp(buf_show,"301" ) == 0 )
+        {
+			sHeart_beating_proc(NULL);		
+		}
 		else if( strcmp(buf_show,"exit" ) ==0 ||
 		         strcmp(buf_show,"q" ) ==0)
         {
@@ -573,7 +600,7 @@ static int get_command()
 		{
 			printf("Unknown Command!\n");
 		}
-		return 1;
+	
 	}
 
     return 0;
@@ -657,10 +684,10 @@ myconnection:
 		{
 			goto myconnection;
 		}
-		write(STDOUT_FILENO, ":", 1);
-		int a = get_command();
+		//write(STDOUT_FILENO, ":", 1);
+		get_command();
 
-		printf("%d\n\n",a);
+		//printf("%d\n\n",a);
 		
 		sleep(1);
 	}
@@ -685,8 +712,12 @@ myconnection:
 		}
 		else if( strcmp(buf_show,"202" ) == 0 )
         {
-			 cData_uploading();
+			scData_uploading();		
 		}
+		else if( strcmp(buf_show,"301" ) == 0 )
+        {
+			sHeart_beating_proc(NULL);		
+		}		
 		else if( strcmp(buf_show,"exit" ) ==0 ||
 		         strcmp(buf_show,"q" ) ==0)
         {
