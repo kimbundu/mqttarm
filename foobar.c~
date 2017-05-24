@@ -150,8 +150,8 @@ void sHeart_beating_proc(char*info)
 {
 
 
-	char* strunreg = "{\"operateCode\":\"301\"}"
-		             "{\"equipmentid\":" ;
+	char* strunreg = "{\"operateCode\":\"301\","
+		             "\"equipmentid\":" ;
 
 
 	char mydata[128];
@@ -415,6 +415,45 @@ static void cData_uploading()
 		mydata = getMeasure2Json(&equipmentdev,equipmentid,202);
 		send_mqttMsg(&g_myClient,pubNormalTopic,mydata ,strlen(mydata ));
 		//free(mydata );
+   }
+   else
+   {
+		printf( "equipmentid is NULL\n ");
+   }
+		
+}
+
+//107 add sub deive
+static void cAdd_SubDevice()
+{
+	char *mydata;
+	if( equipmentid != NULL )
+	{
+
+		;
+		//mydata = getMeasure2Json(&equipmentdev,equipmentid,202);
+		//send_mqttMsg(&g_myClient,pubNormalTopic,mydata ,strlen(mydata ));
+		//free(mydata );
+		//opcode,eqno,childEqNo,childname,childopv,childoptype
+   }
+   else
+   {
+		printf( "equipmentid is NULL\n ");
+   }
+		
+}
+//108 delete sub deive
+static void cDel_SubDevice()
+{
+	char *mydata;//2];
+	if( equipmentid != NULL )
+	{
+
+		;
+		//mydata = getMeasure2Json(&equipmentdev,equipmentid,202);
+		//send_mqttMsg(&g_myClient,pubNormalTopic,mydata ,strlen(mydata ));
+		//free(mydata );
+		//opcode: eqno: childEqNo:
    }
    else
    {

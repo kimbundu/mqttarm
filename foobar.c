@@ -422,6 +422,44 @@ static void cData_uploading()
    }
 		
 }
+
+//107 add sub deive
+static void cAdd_SubDevice()
+{
+	char *mydata;
+	if( equipmentid != NULL )
+	{
+
+		//mydata = getMeasure2Json(&equipmentdev,equipmentid,202);
+		//send_mqttMsg(&g_myClient,pubNormalTopic,mydata ,strlen(mydata ));
+		//free(mydata );
+		//opcode,eqno,childEqNo,childname,childopv,childoptype
+   }
+   else
+   {
+		printf( "equipmentid is NULL\n ");
+   }
+		
+}
+//108 delete sub deive
+static void cDel_SubDevice()
+{
+	char *mydata;//2];
+	if( equipmentid != NULL )
+	{
+
+		;
+		//mydata = getMeasure2Json(&equipmentdev,equipmentid,202);
+		//send_mqttMsg(&g_myClient,pubNormalTopic,mydata ,strlen(mydata ));
+		//free(mydata );
+		//opcode: eqno: childEqNo:
+   }
+   else
+   {
+		printf( "equipmentid is NULL\n ");
+   }
+		
+}
 //mqtt procedure
 static int RecvProc( char* data,char* topic, int len )
 {
