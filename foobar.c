@@ -151,7 +151,7 @@ void sHeart_beating_proc(char*info)
 
 
 	char* strunreg = "{\"operateCode\":\"301\","
-		             "\"equipmentid\":" ;
+		             "\"equipmentNO\":" ;
 
 
 	char mydata[128];

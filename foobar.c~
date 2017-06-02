@@ -430,7 +430,6 @@ static void cAdd_SubDevice()
 	if( equipmentid != NULL )
 	{
 
-		;
 		//mydata = getMeasure2Json(&equipmentdev,equipmentid,202);
 		//send_mqttMsg(&g_myClient,pubNormalTopic,mydata ,strlen(mydata ));
 		//free(mydata );
