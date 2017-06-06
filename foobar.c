@@ -151,7 +151,7 @@ void sHeart_beating_proc(char*info)
 
 
 	char* strunreg = "{\"operateCode\":\"301\","
-		             "\"equipmentNO\":" ;
+		             "\"equipmentNo\":" ;
 
 
 	char mydata[128];
@@ -650,7 +650,14 @@ int main(int argc, char* argv[])
 	char buf_show[BUFFSIZE];
 	int n;   
 	char pwdbuf[80];
-    getcwd(pwdbuf, sizeof(pwdbuf));
+
+	if( argc < 2 ) 
+	{
+		printf("usage: foobar /home/root\n");
+		return 0;		
+	}
+	strcpy( pwdbuf,argv[1]);
+	//getcwd(pwdbuf, sizeof(pwdbuf));
     printf("current working directory : %s\n", pwdbuf);
 
 	sprintf( strcfgfilename, "%s/%s", pwdbuf,"device.config");
