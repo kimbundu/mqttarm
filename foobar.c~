@@ -552,12 +552,86 @@ static int RecvProc( char* data,char* topic, int len )
 	return 0;
 }
 // data procedure for serials port of my device
+
+int findbuf( char* buf, char* submarker, int bufsize, int subbufsize )
+{
+	int i=0,j=0;
+	for( i=0;i<bufsize-subbufsize-1;i++)
+	{
+		for(j=0;j<subbufsize;j++ )
+		{
+			if( *(buf+i+j) != *( submarker+j ) )
+				break;
+		}
+		if( j == subbufsize )
+		{
+			return i;				
+		}
+
+	}
+
+	return -1;
+
+}
+
+int findbuf2( char* buf, char submarker, int bufsize)
+{
+	int i=0;
+	for( i=0;i<bufsize;i++)
+	{
+
+		if( *(buf+i) == submarker ) 
+		{
+			return i;				
+		}
+	}
+	return -1;
+}
+
+static   char  my_buffer[1024];
+static   int   npos=0;
+#define MIN_PKG_SIZE  (10)
 static int serials_dataproc(char* data, int len )
-{           
+{   
+	int markpos=-1;
+	short pkgsize=0;
+	char  pkgcmd=0;
     //send_mqttMsg(&g_myClient,pubTopic,data,len);
 	//printf( "comrecv:%s\n", data );
 
-	
+	if( npos + len < 1023 )
+	{
+		memcpy( my_buffer + npos, data, len );
+	}
+	else
+	{
+		memset(my_buffer,0,sizeof(my_buffer) );
+	}
+
+	if( npos > MIN_PKG_SIZE )
+	{
+
+		markpos = findbuf2( my_buffer, 0x2E, npos );
+
+		if( markpos >=0  && markpos +  MIN_PKG_SIZE <= npos )
+		{
+
+			//get sizeof package
+			memcpy(&pkgsize,my_buffer+markpos+1,2);
+
+			if( markpos + pkgsize + 1 < npos )
+			{
+				//get command of package
+				pkgcmd=*(my_buffer+markpos+3);
+				memove( my_buffer, my_buffer+markpos+pkgsize, npos - markpos - pkgsize - 1    );
+				npos = npos - markpos - pkgsize - 1;
+			}
+
+
+		}
+
+	}
+
 	return 0;
 }
 
@@ -656,7 +730,7 @@ int main(int argc, char* argv[])
 		printf("usage: foobar /home/root\n");
 		return 0;		
 	}
-
+	strcpy( pwdbuf,argv[1]);
 	//getcwd(pwdbuf, sizeof(pwdbuf));
     printf("current working directory : %s\n", pwdbuf);
 
