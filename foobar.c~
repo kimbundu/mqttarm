@@ -4,15 +4,21 @@
 #include <signal.h>
 #include <time.h>
 #include <sys/time.h> 
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <yajl/yajl_tree.h>
 #include <yajl/yajl_parse.h>
 #include <yajl/yajl_gen.h>
 #include <MQTTAsync.h>
+
 #include "mqtt.h"
 #include "serialscomm.h"
 #include "config.h"
 #include "deviceboat.h"
+
+
 
 comm_t	   g_comm;	//com port
 //connection options
@@ -50,6 +56,7 @@ Opts_t OPTS;
 	20,
 	"huachen/server"
 };*/
+
 
 
 
@@ -414,7 +421,8 @@ static void cData_uploading()
      
 		mydata = getMeasure2Json(&equipmentdev,equipmentid,202);
 		send_mqttMsg(&g_myClient,pubNormalTopic,mydata ,strlen(mydata ));
-		//free(mydata );
+
+		
    }
    else
    {
@@ -623,7 +631,7 @@ static int serials_dataproc(char* data, int len )
 			{
 				//get command of package
 				pkgcmd=*(my_buffer+markpos+3);
-				memove( my_buffer, my_buffer+markpos+pkgsize, npos - markpos - pkgsize - 1    );
+				memmove( my_buffer, my_buffer+markpos+pkgsize, npos - markpos - pkgsize - 1    );
 				npos = npos - markpos - pkgsize - 1;
 			}
 
@@ -706,7 +714,7 @@ static int get_command()
 		         strcmp(buf_show,"q" ) ==0)
         {
 			printf( "exit\n");
-			 exit(1);
+			exit(1);
 		}
 		else
 		{
@@ -724,6 +732,8 @@ int main(int argc, char* argv[])
 	char buf_show[BUFFSIZE];
 	int n;   
 	char pwdbuf[80];
+	pthread_t fiforeadid;
+	struct stat  info;
 
 	if( argc < 2 ) 
 	{
@@ -768,6 +778,11 @@ int main(int argc, char* argv[])
 	   printf("Error Opening Comm!\n");	
 	}
 
+	
+	
+	//pthread_create(&fiforeadid,NULL,(void*)fifo_StartRead_thread,NULL);
+
+	
 //connecting to mqtt server!	
 myconnection:
 	
