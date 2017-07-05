@@ -17,6 +17,7 @@
 #include "serialscomm.h"
 #include "config.h"
 #include "deviceboat.h"
+#include "msgque.h"
 
 
 
@@ -41,7 +42,7 @@ const char* subRegistTopic="huachen/server";
 static int up2ServerInfo = 0;
 
 static int inWhatStatus = 0; //1 --unreg  2--reg
-
+static int send_msg_id=-1;
 
 
 Opts_t OPTS;
@@ -57,6 +58,26 @@ Opts_t OPTS;
 	"huachen/server"
 };*/
 
+void msgque_Readthread(void* param)
+{
+	struct msgbuffer msg;
+	key_t key;
+		
+	key = msgque_init(MSG_FILE,MSG_BUFFER_SIZE );
+			
+	while(1)
+	{
+
+		if( msgque_rev(key, &msg) <= 0 )
+		{	
+			sleep(2);
+			continue;
+		}
+		printf("recv:msgid=%d,text=[%s] \n",msg.mtype,msg.mtext );
+		//sleep(1);
+
+	}
+}
 
 
 
@@ -405,6 +426,8 @@ void cStatus_uploading()
 		mystatus = subdevtostring(&equipmentdev, equipmentid,104);	
 		send_mqttMsg(&g_myClient,pubNormalTopic,mystatus ,strlen(mystatus ));
 		//free(mystatus);
+		
+
 	}
    else
    {
@@ -421,7 +444,7 @@ static void cData_uploading()
      
 		mydata = getMeasure2Json(&equipmentdev,equipmentid,202);
 		send_mqttMsg(&g_myClient,pubNormalTopic,mydata ,strlen(mydata ));
-
+		
 		
    }
    else
@@ -689,7 +712,7 @@ static int get_command()
     {
 		n = read(STDIN_FILENO, buf_show, BUFFSIZE);
 		buf_show[n-1]=0;		
-		
+		msgque_send(send_msg_id, 123, buf_show ,strlen(buf_show ) );
 		if( strcmp(buf_show,"101" ) ==0 )
 		{			
 			cReg_Equipment();
@@ -719,6 +742,7 @@ static int get_command()
 		else
 		{
 			printf("Unknown Command!\n");
+			
 		}
 	
 	}
@@ -732,8 +756,11 @@ int main(int argc, char* argv[])
 	char buf_show[BUFFSIZE];
 	int n;   
 	char pwdbuf[80];
-	//pthread_t fiforeadid;
-	//struct stat  info;
+	key_t key;
+	
+	pthread_t msg_threadid;	
+	
+
 
 	if( argc < 2 ) 
 	{
@@ -778,9 +805,14 @@ int main(int argc, char* argv[])
 	   printf("Error Opening Comm!\n");	
 	}
 
+	key = msgque_init(MSG_FILE,MSG_BUFFER_SIZE + 1 );
+	send_msg_id = msgque_getmsgid(key);
+	printf( "msg_key=%d,msg_id=%d\n",key, send_msg_id);
+	sleep(1);
+	pthread_create(&msg_threadid,NULL,(void*)msgque_Readthread,NULL);
+
+
 	
-	
-	//pthread_create(&fiforeadid,NULL,(void*)fifo_StartRead_thread,NULL);
 
 	
 //connecting to mqtt server!	

@@ -24,13 +24,13 @@ void msgque_Readthread(void* param)
 	
 	if( changid_x == 0 )
 	{
-		key = msgque_init("/tmp",11010,1 );
+		key = msgque_init(MSG_FILE,BUFFER_SIZE );
 	}
 	else
 	{
-		key = msgque_init("/tmp",11011,1 );
+		key = msgque_init(MSG_FILE,BUFFER_SIZE+1 );
 	}
-
+	//key = msgque_init(MSG_FILE,BUFFER_SIZE );
 	
 	while(1)
 	{
@@ -41,6 +41,7 @@ void msgque_Readthread(void* param)
 			continue;
 		}
 		printf("recv:msgid=%d,text=[%s] \n",msg.mtype,msg.mtext );
+		//sleep(1);
 
 	}
 }
@@ -49,39 +50,70 @@ int main( int argc , char* argv[] )
 {
 
 	key_t key;
+	int msgid;
+	
 	struct msgbuffer msg;
 	pthread_t threadid;	
 	char buf[BUFFER_SIZE];
 
-	if( argc >=2 )
+	int myinput;
+	
+	
+	if( argv <2 )
 	{
-		changid_x = 1;
+
+		printf("usage: 1/0\n");
+		return 0;			
 	}
 
-	if( changid_x == 1 )
+	myinput = atoi(argv[1] );
+
+	if( myinput == 0  )
 	{
-		key = msgque_init("/tmp",11010,1 );
+		changid_x =0;
+		printf("A \n");
 	}
 	else
 	{
-		key = msgque_init("/tmp",11011,1 );
+		changid_x =1;
+		printf("B \n");
 	}
+
 	
-	pthread_create(&threadid,NULL,(void*)msgque_Readthread,NULL);	
+	if( changid_x == 0 )
+	{
+		key = msgque_init(MSG_FILE,BUFFER_SIZE+1 );
+	}
+	else
+	{
+		key = msgque_init(MSG_FILE,BUFFER_SIZE );
+	}
+
+
+	//key = msgque_init(MSG_FILE,BUFFER_SIZE );
+	printf("key=:%d\n",key);
+	sleep(2);
+	
+	msgid = msgque_getmsgid(key);
+	printf("msgid:%d\n",msgid);
+
+	pthread_create(&threadid,NULL,(void*)msgque_Readthread,NULL);
+	
 	while(1)
     {
         fprintf(stdout,"Send:",NULL);
         fflush(stdout);
         fgets(buf,BUFFER_SIZE,stdin);
-        if(strcmp(buf,"exit\n") == 0)
+
+		if(strcmp(buf,"exit\n") == 0)
         {
             break;
         }
 
 		if( strlen(buf)> 1)
-			msgque_send(key, 123, buf, strlen(buf)-1);
+			msgque_send(msgid, 123, buf, strlen(buf)-1);
    }  
 
-	msgque_del();		
+	msgque_del(msgid);		
 	return (0);
 }

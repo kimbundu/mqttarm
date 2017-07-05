@@ -2,6 +2,9 @@
 Maximized=1
 Geometry=1371x724+65+24
 
+[File Loader]
+Files=../../msgquetest/msgque.c#1%%%../../msgquetest/msgquetest.c#14
+
 [Document Manager]
 bookmarks=<?xml version="1.0" encoding="UTF-8"?>\n<bookmarks/>\n
 

@@ -4,13 +4,13 @@
 #include <sys/msg.h>   
 
 #define MSG_FILE 	 "/tmp"
-#define BUFFER_SIZE  (512)            
+#define MSG_BUFFER_SIZE  (512)            
 #define PERM 		 (S_IRUSR|S_IWUSR)  
 
 struct msgbuffer
 {	
 	int  mtype;
-	char mtext[BUFFER_SIZE+1];
+	char mtext[MSG_BUFFER_SIZE+1];
 };
 //typedef struct msgbuffer msgbuf;
 

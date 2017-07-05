@@ -51,7 +51,7 @@ int  msgque_send( int msgid,int id, char* msgbuf, int msglen )
 	int retv=-1;
 	int msgsize;
 	
-	msgsize = msglen<BUFFER_SIZE?msglen:BUFFER_SIZE;	
+	msgsize = msglen<MSG_BUFFER_SIZE?msglen:MSG_BUFFER_SIZE;	
               
     memset(msg.mtext,0,sizeof(msg.mtext));
     msg.mtype = id;

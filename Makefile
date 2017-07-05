@@ -10,7 +10,7 @@ CC = gcc
 
 CFLAGS = -g #-Wall -Wnonnull -Wpointer-sign
 OBJECTS = foobar.o mqtt.o serialscomm.o deviceboat.o xprotocol.o 
-OBJECTS += config.o cfg_util.o dictionary.o hash.o 
+OBJECTS += config.o cfg_util.o dictionary.o hash.o msgque.o
 INCFLAGS = -I./
 LDFLAGS =
 LIBS = -l$(MQTTLIB_AS) 

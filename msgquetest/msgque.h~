@@ -1,6 +1,7 @@
 #ifndef _MSGQUE_COMM_H_
 #define _MSGQUE_COMM_H_
 
+#include <sys/msg.h>   
 
 #define BUFFER_SIZE  (512)            
 #define PERM 		 (S_IRUSR|S_IWUSR)  
@@ -23,10 +24,11 @@ extern "C" {
 	
 
 
-key_t msgque_init(char *path, int keyv, int iserver);
-int  msgque_send( key_t key,int msgid, char* msgbuf, int msglen );
+key_t msgque_init(char *path, int keyv);
+int   msgque_getmsgid( key_t key);
+int  msgque_send( int msgid,int id, char* msgbuf, int msglen );
 int  msgque_rev( key_t key,struct msgbuffer * msg);
-void msgque_del();
+void msgque_del( int msgid );
 
 
 #ifdef __cplusplus

@@ -4,7 +4,7 @@
 #include <sys/msg.h>   
 
 #define MSG_FILE 	 "/tmp"
-#define BUFFER_SIZE  (512)            
+#define MSG_BUFFER_SIZE  (512)            
 #define PERM 		 (S_IRUSR|S_IWUSR)  
 
 struct msgbuffer
